@@ -1,34 +1,36 @@
 # Android Custom Metrics App
 
-## Performance Instrumentation with Sentry
+## Sentry Performance Demo
 
-This app uses a scalable, base-activity pattern for Sentry performance tracing. All screens extending `BaseInstrumentedActivity` are automatically instrumented for:
+This minimal Android app demonstrates Sentry's performance monitoring for navigation and screen load timing, using both auto-instrumentation and a custom navigation timing span (NTS).
 
-- **Navigation to screen (NTS):** Time from navigation start to screen open
-- **Time to first layout (TTFL):** Time until the first frame is drawn
-- **Screen time to interactive (TTI):** Time until the screen is fully interactive (call `markTTI()`)
-- **Rich content load time (RCLT):** Time until rich content (e.g., images) is loaded (call `markRCLT()`)
+### What This App Captures
 
-### How to Instrument a New Screen
+- **Navigation Timing Span (NTS):**
+  - Measures the time from a button tap in `HomeActivity` to the screen being shown in `AutoTTIDTTFDWithNTSMeasurementActivity`.
+  - Captured as a custom span (`ui.screen_time_to_interactive`) and attached as a measurement (`nts_ms`).
 
-1. Extend `BaseInstrumentedActivity` in your Activity.
-2. Call `markTTI()` when your screen is fully interactive (e.g., after data is loaded and UI is ready).
-3. Call `markRCLT()` when rich content (e.g., images) is loaded.
+- **Time To Full Display (TTFD):**
+  - Automatically captured by Sentry.
+  - Ends when all content is loaded and `Sentry.reportFullyDisplayed()` is called in the destination activity.
 
-### Navigation Instrumentation
+- **Auto-instrumented Spans:**
+  - Activity lifecycle (screen load)
+  - OkHttp network requests
+  - File I/O
 
-Each navigation event from the Home screen starts a Sentry span/transaction, so you can see tap-to-screen navigation performance in Sentry.
+### How It Works
 
-### Limitations
+1. **SplashActivity**: Shows a splash screen, then navigates to Home.
+2. **HomeActivity**: Has a single button. When tapped, records the tap time and launches the demo screen.
+3. **AutoTTIDTTFDWithNTSMeasurementActivity**: 
+   - Receives the tap time, starts a custom span for NTS, and attaches the NTS duration as a measurement.
+   - Loads network and file data, simulates content loading, and calls `Sentry.reportFullyDisplayed()` when done.
 
-- **Cross-activity traces are not natively linked** in Sentry (as of current SDK). The `Tracer` singleton is designed to be future-proof for upcoming Sentry SDK features that may allow linking transactions across activities.
-- **To correlate traces across activities,** we use navigation span/transaction names and (optionally) tags. When Sentry adds public APIs for span linking, this pattern can be extended easily.
-
-### Extending Instrumentation
-
-- For fragments or Jetpack Compose, you can adapt the base pattern or use similar lifecycle hooks.
-- For business logic, network, or database spans, use `Tracer.startSpan()` and `Tracer.stopSpan()` directly.
+### Sentry Setup
+- Sentry is auto-instrumented via the Android SDK and enabled in the manifest.
+- The DSN is injected securely via `local.properties` and a manifest placeholder.
 
 ---
 
-**See comments in `BaseInstrumentedActivity.kt`, `Tracer.kt`, and example screens for more details.** 
+**This project is a minimal, production-quality example of Sentry Android performance instrumentation for navigation and screen load timing.** 
