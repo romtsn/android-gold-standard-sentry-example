@@ -2,13 +2,20 @@
 
 ## Sentry Performance Demo
 
-This minimal Android app demonstrates Sentry's performance monitoring for navigation and screen load timing, using both auto-instrumentation and a custom navigation timing span (NTS).
+This minimal Android app demonstrates Sentry's performance monitoring for navigation, cold start, and screen load timing, using both auto-instrumentation and custom spans/attributes.
 
 ### What This App Captures
 
-- **Navigation Timing Span (NTS):**
-  - Measures the time from a button tap in `HomeActivity` to the screen being shown in `AutoTTIDTTFDWithNTSMeasurementActivity`.
-  - Captured as a custom span (`ui.screen_time_to_interactive`) and attached as a measurement (`nts_ms`).
+- **App Start to Interactive (Cold Start):**
+  - Measures the time from app cold start (icon tap) through splash screen to the Home screen being fully interactive.
+  - Captured as a custom span (`app.start_to_interactive`) on the Home screen transaction.
+  - The duration is attached as a data attribute and visible as a span in Sentry.
+
+- **Navigation Timing Span (NTS) and Time To Interactive (TTI):**
+  - In `AutoTTIDTTFDWithNTSMeasurementActivity`, a custom span (`ui.screen_time_to_interactive`) is created.
+  - **NTS (`nts_ms`)**: Time from button tap (navigation event) to when the screen is opened (Activity `onCreate`).
+  - **TTI (`tti_ms`)**: Time from screen open to when the screen is fully rendered and interactive.
+  - Both are attached as data attributes (not measurements) on the custom span and are visible in Sentry under the span's Data section.
 
 - **Time To Full Display (TTFD):**
   - Automatically captured by Sentry.
@@ -22,9 +29,9 @@ This minimal Android app demonstrates Sentry's performance monitoring for naviga
 ### How It Works
 
 1. **SplashActivity**: Shows a splash screen, then navigates to Home.
-2. **HomeActivity**: Has a single button. When tapped, records the tap time and launches the demo screen.
+2. **HomeActivity**: Receives the app start time, starts a custom span for App Start to Interactive, and marks the screen as fully displayed when ready.
 3. **AutoTTIDTTFDWithNTSMeasurementActivity**: 
-   - Receives the tap time, starts a custom span for NTS, and attaches the NTS duration as a measurement.
+   - Receives the tap time, starts a custom span for NTS/TTI, and attaches both as data attributes.
    - Loads network and file data, simulates content loading, and calls `Sentry.reportFullyDisplayed()` when done.
 
 ### Sentry Setup
@@ -33,4 +40,4 @@ This minimal Android app demonstrates Sentry's performance monitoring for naviga
 
 ---
 
-**This project is a minimal, production-quality example of Sentry Android performance instrumentation for navigation and screen load timing.** 
+**This project is a minimal, production-quality example of Sentry Android performance instrumentation for navigation, cold start, and screen load timing.** 

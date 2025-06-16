@@ -13,7 +13,9 @@ class SplashActivity : AppCompatActivity() {
 
         // Simulate app initialization
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, HomeActivity::class.java))
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.putExtra("app_start_time", MyApp.appStartTime)
+            startActivity(intent)
             finish()
         }, 1000) // Simulate 1 second initialization
     }
