@@ -56,11 +56,10 @@ object Tracer : ActivityLifecycleCallbacks {
         } else {
             SentryLongDate(System.nanoTime())
         }
-        val appStartSpan = startSpan("app.start_flow", "App start flow", appStartDate)
+        val appStartSpan = startSpan(APP_START_OP, "App start flow", appStartDate)
         spans[APP_START_OP] = appStartSpan
-        val appStartOp = APP_START_COLD
-        val appSTISpan = appStartSpan.startChild(appStartOp, "app.start_to_interactive", appStartDate, SENTRY)
-        spans[appStartOp] = appSTISpan
+        val appSTISpan = appStartSpan.startChild(APP_START_COLD, "app.start_to_interactive", appStartDate, SENTRY)
+        spans[APP_START_COLD] = appSTISpan
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
